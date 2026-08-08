@@ -15,7 +15,6 @@
   --muted:#6b7280;
 }
 
-/* DARK MODE */
 .dark{
   --bg1:#020617;
   --bg2:#0f172a;
@@ -25,7 +24,6 @@
   --muted:#94a3b8;
 }
 
-/* BACKGROUND HALUS */
 body{
   margin:0;
   font-family:system-ui;
@@ -43,7 +41,6 @@ body{
   padding-bottom:110px;
 }
 
-/* header */
 .header{
   display:flex;
   justify-content:space-between;
@@ -56,7 +53,6 @@ body{
   border:1px solid var(--line);
 }
 
-/* stats */
 .stats{
   display:flex;
   gap:10px;
@@ -71,7 +67,6 @@ body{
   border-radius:8px;
 }
 
-/* table */
 .table-box{
   background:var(--card);
   border:1px solid var(--line);
@@ -112,13 +107,11 @@ tbody tr:hover{
   background:rgba(37,99,235,0.06);
 }
 
-/* dark */
 .dark th{ background:#020617; }
 .dark td{ border-top:1px solid #1e293b; }
 .dark th, .dark td{ border-right:1px solid #1e293b; }
 .dark tbody tr:nth-child(even){ background:rgba(255,255,255,0.03); }
 
-/* badge */
 .badge{
   padding:3px 8px;
   border:1px solid;
@@ -128,12 +121,10 @@ tbody tr:hover{
 .low{ color:#f59e0b; border-color:#f59e0b; }
 .out{ color:#dc2626; border-color:#dc2626; }
 
-/* aksi warna */
 .aksi-masuk{ color:#16a34a; font-weight:bold; }
 .aksi-keluar{ color:#f59e0b; font-weight:bold; }
 .aksi-tambah{ color:#2563eb; font-weight:bold; }
 
-/* button */
 button{
   padding:5px 8px;
   border:1px solid var(--line);
@@ -145,7 +136,6 @@ button{
 .btn-out{ background:#f59e0b; color:white; border:none; }
 .btn-del{ background:#dc2626; color:white; border:none; }
 
-/* footer */
 .footer{
   position:fixed;
   bottom:0;
@@ -168,7 +158,6 @@ button{
   border:1px solid var(--line);
 }
 
-/* toast */
 .toast{
   position:fixed;
   top:10px;
@@ -185,49 +174,49 @@ button{
 
 <div class="wrapper">
 
-  <div class="header">
-    <b> Inventory Gudang</b>
-    <div>
-      <input id="search" class="search" placeholder="Cari..." oninput="render()">
-      <button onclick="toggleTheme()" id="themeBtn">🌙</button>
-    </div>
+<div class="header">
+  <b> Inventory Gudang</b>
+  <div>
+    <input id="search" class="search" placeholder="Cari..." oninput="render()">
+    <button onclick="toggleTheme()" id="themeBtn">🌙</button>
   </div>
+</div>
 
-  <div class="stats">
-    <div class="card">
-      <small>Total Barang</small>
-      <h3 id="totalBarang">0</h3>
-    </div>
-    <div class="card">
-      <small>Total Stok</small>
-      <h3 id="totalStok">0</h3>
-    </div>
+<div class="stats">
+  <div class="card">
+    <small>Total Barang</small>
+    <h3 id="totalBarang">0</h3>
   </div>
+  <div class="card">
+    <small>Total Stok</small>
+    <h3 id="totalStok">0</h3>
+  </div>
+</div>
 
-  <div class="table-box">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nama</th>
-          <th>Kode</th>
-          <th>Stok</th>
-          <th>Update</th>
-          <th>Jumlah</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="tabel"></tbody>
-    </table>
-  </div>
+<div class="table-box">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Nama</th>
+<th>Kode</th>
+<th>Stok</th>
+<th>Update</th>
+<th>Jumlah</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="tabel"></tbody>
+</table>
+</div>
 
 </div>
 
 <div class="footer">
-  <input id="nama" placeholder="Nama">
-  <input id="kode" placeholder="Kode">
-  <input id="stok" type="number" placeholder="Stok">
-  <button class="btn-add" onclick="tambah()">Tambah</button>
+<input id="nama" placeholder="Nama">
+<input id="kode" placeholder="3 digit angka">
+<input id="stok" type="number" placeholder="Stok">
+<button class="btn-add" onclick="tambah()">Tambah</button>
 </div>
 
 <div id="toast" class="toast"></div>
@@ -256,6 +245,14 @@ function now(){
   return new Date().toLocaleString();
 }
 
+function getPrefix(nama){
+  return nama.replace(/[^a-zA-Z]/g,'').substring(0,3).toUpperCase();
+}
+
+function formatAngka(a){
+  return String(a).padStart(3,"0");
+}
+
 function render(){
   let tabel=document.getElementById("tabel");
   let key=document.getElementById("search").value.toLowerCase();
@@ -274,7 +271,7 @@ function render(){
 
       tabel.innerHTML+=`
       <tr>
-        <td>${jumlah}</td>
+        <td><b>${x.kode.substring(0,3)}</b></td>
         <td>${x.nama}</td>
         <td>${x.kode}</td>
         <td><span class="badge ${status(x.stok)}">${x.stok}</span></td>
@@ -297,11 +294,15 @@ function render(){
 }
 
 function tambah(){
-  let n=nama.value;
-  let k=kode.value.toLowerCase();
+  let n=nama.value.trim();
+  let angka=kode.value.trim();
   let s=parseInt(stok.value);
 
-  if(!n||!k||isNaN(s)) return alert("Isi semua!");
+  if(!n||!angka||isNaN(s)) return alert("Isi semua!");
+  if(isNaN(angka)) return alert("Kode harus angka!");
+
+  angka = formatAngka(angka);
+  let k = getPrefix(n) + angka;
 
   let i=data.findIndex(x=>x.kode===k);
 
@@ -336,17 +337,18 @@ function keluar(i){
     data[i].update=now();
     data[i].aksi="Keluar";
     simpan(); render(); toast("Keluar");
-  }else alert("Stok kurang");
+  }else{
+    toast("Stok kurang");
+  }
 }
 
 function hapus(i){
-  if(confirm("Hapus?")){
+  if(confirm("Hapus barang?")){
     data.splice(i,1);
     simpan(); render(); toast("Dihapus");
   }
 }
 
-/* DARK MODE */
 if(localStorage.getItem("theme")==="dark"){
   document.body.classList.add("dark");
   themeBtn.innerText="☀️";
