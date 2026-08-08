@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Inventory Gudang</title>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg1:#eef2ff;
+  --bg2:#f8fafc;
+  --card:#ffffff;
+  --line:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+}
+
+/* DARK MODE */
+.dark{
+  --bg1:#020617;
+  --bg2:#0f172a;
+  --card:#020617;
+  --line:#1e293b;
+  --text:#e2e8f0;
+  --muted:#94a3b8;
+}
+
+/* BACKGROUND HALUS */
+body{
+  margin:0;
+  font-family:system-ui;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(37,99,235,0.12), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(99,102,241,0.12), transparent 40%),
+    linear-gradient(135deg, var(--bg1), var(--bg2));
+  color:var(--text);
+}
+
+.wrapper{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+  padding-bottom:110px;
+}
+
+/* header */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.search{
+  padding:8px;
+  border:1px solid var(--line);
+}
+
+/* stats */
+.stats{
+  display:flex;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.card{
+  flex:1;
+  background:var(--card);
+  border:1px solid var(--line);
+  padding:12px;
+  border-radius:8px;
+}
+
+/* table */
+.table-box{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:8px;
+  overflow:hidden;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td{
+  border-right:1px solid var(--line);
+}
+
+th:last-child, td:last-child{
+  border-right:none;
+}
+
+th{
+  background:#f1f5f9;
+  padding:10px;
+  font-size:12px;
+  text-transform:uppercase;
+}
+
+td{
+  padding:10px;
+  border-top:1px solid var(--line);
+}
+
+tbody tr:nth-child(even){
+  background:rgba(0,0,0,0.02);
+}
+
+tbody tr:hover{
+  background:rgba(37,99,235,0.06);
+}
+
+/* dark */
+.dark th{ background:#020617; }
+.dark td{ border-top:1px solid #1e293b; }
+.dark th, .dark td{ border-right:1px solid #1e293b; }
+.dark tbody tr:nth-child(even){ background:rgba(255,255,255,0.03); }
+
+/* badge */
+.badge{
+  padding:3px 8px;
+  border:1px solid;
+  font-size:12px;
+}
+.ok{ color:#16a34a; border-color:#16a34a; }
+.low{ color:#f59e0b; border-color:#f59e0b; }
+.out{ color:#dc2626; border-color:#dc2626; }
+
+/* aksi warna */
+.aksi-masuk{ color:#16a34a; font-weight:bold; }
+.aksi-keluar{ color:#f59e0b; font-weight:bold; }
+.aksi-tambah{ color:#2563eb; font-weight:bold; }
+
+/* button */
+button{
+  padding:5px 8px;
+  border:1px solid var(--line);
+  cursor:pointer;
+  border-radius:6px;
+}
+.btn-add{ background:var(--primary); color:white; border:none; }
+.btn-in{ background:#16a34a; color:white; border:none; }
+.btn-out{ background:#f59e0b; color:white; border:none; }
+.btn-del{ background:#dc2626; color:white; border:none; }
+
+/* footer */
+.footer{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);
+  padding:10px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+}
+
+.dark .footer{
+  background:rgba(2,6,23,0.8);
+}
+
+.footer input{
+  padding:8px;
+  border:1px solid var(--line);
+}
+
+/* toast */
+.toast{
+  position:fixed;
+  top:10px;
+  right:10px;
+  background:#111;
+  color:white;
+  padding:10px;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <div class="header">
+    <b> Inventory Gudang</b>
+    <div>
+      <input id="search" class="search" placeholder="Cari..." oninput="render()">
+      <button onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card">
+      <small>Total Barang</small>
+      <h3 id="totalBarang">0</h3>
+    </div>
+    <div class="card">
+      <small>Total Stok</small>
+      <h3 id="totalStok">0</h3>
+    </div>
+  </div>
+
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Kode</th>
+          <th>Stok</th>
+          <th>Update</th>
+          <th>Jumlah</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tabel"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="footer">
+  <input id="nama" placeholder="Nama">
+  <input id="kode" placeholder="Kode">
+  <input id="stok" type="number" placeholder="Stok">
+  <button class="btn-add" onclick="tambah()">Tambah</button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem("barang")) || [];
+
+function simpan(){
+  localStorage.setItem("barang", JSON.stringify(data));
+}
+
+function toast(msg){
+  let t=document.getElementById("toast");
+  t.innerText=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",2000);
+}
+
+function status(s){
+  if(s<=0) return "out";
+  if(s<=5) return "low";
+  return "ok";
+}
+
+function now(){
+  return new Date().toLocaleString();
+}
+
+function render(){
+  let tabel=document.getElementById("tabel");
+  let key=document.getElementById("search").value.toLowerCase();
+
+  tabel.innerHTML="";
+  let total=0, jumlah=0;
+
+  data.forEach((x,i)=>{
+    if(x.nama.toLowerCase().includes(key)||x.kode.includes(key)){
+      total+=x.stok; jumlah++;
+
+      let warnaAksi =
+        x.aksi==="Masuk" ? "aksi-masuk" :
+        x.aksi==="Keluar" ? "aksi-keluar" :
+        "aksi-tambah";
+
+      tabel.innerHTML+=`
+      <tr>
+        <td>${jumlah}</td>
+        <td>${x.nama}</td>
+        <td>${x.kode}</td>
+        <td><span class="badge ${status(x.stok)}">${x.stok}</span></td>
+        <td>
+          <small>${x.update||"-"}</small><br>
+          <span class="${warnaAksi}">${x.aksi||"-"}</span>
+        </td>
+        <td><input type="number" id="j${i}" style="width:60px"></td>
+        <td>
+          <button class="btn-in" onclick="masuk(${i})">+</button>
+          <button class="btn-out" onclick="keluar(${i})">-</button>
+          <button class="btn-del" onclick="hapus(${i})">x</button>
+        </td>
+      </tr>`;
+    }
+  });
+
+  totalBarang.innerText=jumlah;
+  totalStok.innerText=total;
+}
+
+function tambah(){
+  let n=nama.value;
+  let k=kode.value.toLowerCase();
+  let s=parseInt(stok.value);
+
+  if(!n||!k||isNaN(s)) return alert("Isi semua!");
+
+  let i=data.findIndex(x=>x.kode===k);
+
+  if(i!=-1){
+    data[i].stok+=s;
+    data[i].update=now();
+    data[i].aksi="Masuk";
+    toast("Stok ditambah");
+  }else{
+    data.push({nama:n,kode:k,stok:s,update:now(),aksi:"Tambah"});
+    toast("Barang baru");
+  }
+
+  simpan(); render();
+  nama.value=kode.value=stok.value="";
+}
+
+function masuk(i){
+  let j=parseInt(document.getElementById("j"+i).value);
+  if(!isNaN(j)&&j>0){
+    data[i].stok+=j;
+    data[i].update=now();
+    data[i].aksi="Masuk";
+    simpan(); render(); toast("Masuk");
+  }
+}
+
+function keluar(i){
+  let j=parseInt(document.getElementById("j"+i).value);
+  if(!isNaN(j)&&j>0&&j<=data[i].stok){
+    data[i].stok-=j;
+    data[i].update=now();
+    data[i].aksi="Keluar";
+    simpan(); render(); toast("Keluar");
+  }else alert("Stok kurang");
+}
+
+function hapus(i){
+  if(confirm("Hapus?")){
+    data.splice(i,1);
+    simpan(); render(); toast("Dihapus");
+  }
+}
+
+/* DARK MODE */
+if(localStorage.getItem("theme")==="dark"){
+  document.body.classList.add("dark");
+  themeBtn.innerText="☀️";
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  if(document.body.classList.contains("dark")){
+    localStorage.setItem("theme","dark");
+    themeBtn.innerText="☀️";
+  }else{
+    localStorage.setItem("theme","light");
+    themeBtn.innerText="🌙";
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>
