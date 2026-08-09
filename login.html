@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Page</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.container{
+  background:white;
+  padding:30px;
+  border-radius:12px;
+  width:300px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  text-align:center;
+}
+
+h2{
+  margin-bottom:20px;
+  color:#111827;
+}
+
+.input-group{
+  margin-bottom:15px;
+  text-align:left;
+}
+
+.input-group label{
+  font-size:14px;
+  color:#374151;
+}
+
+.input-group input{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  border:1px solid #d1d5db;
+  border-radius:8px;
+  outline:none;
+}
+
+.input-group input:focus{
+  border-color:#2563eb;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  background:#2563eb;
+  color:white;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#1e40af;
+}
+
+.footer{
+  margin-top:15px;
+  font-size:13px;
+  color:#6b7280;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Login</h2>
+
+  <form onsubmit="login(event)">
+    <div class="input-group">
+      <label>Username</label>
+      <input type="text" id="username" required>
+    </div>
+
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="password" required>
+    </div>
+
+    <button type="submit">Masuk</button>
+  </form>
+
+  <div class="footer">
+    © 2026 Inventory System
+  </div>
+</div>
+
+<script>
+function login(e){
+  e.preventDefault();
+
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+
+  // contoh login sederhana
+  if(user === "admin" && pass === "123"){
+    alert("Login berhasil!");
+    // pindah halaman
+    window.location.href = "dashboard.html";
+  }else{
+    alert("Username atau password salah!");
+  }
+}
+</script>
+
+</body>
+</html>
